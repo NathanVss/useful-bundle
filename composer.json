@@ -1,7 +1,7 @@
 {
     "name": "vss/useful-bundle",
     "description": "Provides some useful Symfony2 features.",
-    "type": "symfony2 bundle",
+    "type": "symfony2-bundle",
     "authors": [
         {
             "name": "Nathan",
@@ -9,5 +9,10 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "php": ">=5.3.9",
+        "symfony/symfony": "2.8.*",
+        "doctrine/orm": "^2.4.8",
+        "doctrine/doctrine-bundle": "~1.4"
+    }
 }
