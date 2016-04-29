@@ -1,0 +1,13 @@
+{
+    "name": "vss/useful-bundle",
+    "description": "Provides some useful Symfony2 features.",
+    "type": "symfony2 bundle",
+    "authors": [
+        {
+            "name": "Nathan",
+            "email": "nathan.vasse@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
