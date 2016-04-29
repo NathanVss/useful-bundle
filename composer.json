@@ -2,6 +2,7 @@
     "name": "vss/useful-bundle",
     "description": "Provides some useful Symfony2 features.",
     "type": "symfony2-bundle",
+    "license": "MIT",
     "authors": [
         {
             "name": "Nathan",
