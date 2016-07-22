@@ -21,6 +21,7 @@ class RequestListener {
     public function onKernelRequest(GetResponseEvent $event) {
         $request = $event->getRequest();
         $data = [];
+
         if (strstr($request->getContentType(), "form")) {
             parse_str($request->getContent(), $data);
         }

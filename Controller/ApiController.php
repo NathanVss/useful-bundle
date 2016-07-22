@@ -28,7 +28,7 @@ class ApiController extends Controller
      * @return JsonResponse
      * @throws \Exception
      */
-    public static function success($datas, array $opts = array()) {
+    public static function success($datas = 'success', array $opts = array()) {
         $response = new JsonResponse();
         $response->setData($datas);
         $response->setStatusCode(200);
@@ -49,11 +49,21 @@ class ApiController extends Controller
      * @internal param int $code
      * @return JsonResponse
      */
-    public static function error($httpCode, $type, $message, array $opts = []) {
+    public static function error($httpCode, $type, $message = "", array $opts = []) {
 
         $errorCode = $httpCode;
         if (isset($opts['code']) && ($code = $opts['code'])) {
             $errorCode = $code;
+        }
+
+        if ($type instanceof \Exception) {
+
+            if (preg_match("/\\\\(\\w+)Exception$/m", get_class($type), $matches)) {
+                $type = $matches[1];
+            } else {
+                $type = get_class($type);
+            }
+
         }
 
         $areDetails = isset($opts['details']) && $opts['details'];
@@ -75,32 +85,53 @@ class ApiController extends Controller
         return $response;
     }
 
+    /**
+     * @param $request
+     * @param $needle
+     * @param array $params
+     * @return JsonResponse
+     */
+    public function required($request, $needle, &$params) {
+        try {
+            $params = $this->requiredParams($request, $needle);
+            $params = $request;
+        } catch (BadRequestHttpException $e) {
+            return self::error(400, "MissingParams", $e->getMessage());
+        }
+    }
+
 
     /**
      * Throws BadRequestHttpException if $params doesn't contains all the $needle keys
      * @param $params
      * @param $needle
-     * @return array
+     * @return \Symfony\Component\HttpFoundation\ParameterBag
      * @throws BadRequestHttpException
      */
     public function requiredParams($params, $needle) {
 
         $found = [];
-        foreach ($params as $param => $value) {
+        $missing = [];
+        foreach ($needle as $need) {
             $flag = false;
-            foreach ($needle as $need) {
-                if ($need == $param) {
+            $value = null;
+            foreach ($params as $param => $_value) {
+                if ($param == $need) {
                     $flag = true;
+                    $value = $_value;
                 }
             }
             if ($flag) {
-                $found[$param] = $value;
+                $found[$need] = $value;
+            } else {
+                $missing[] = $need;
             }
+        }
 
-        }
         if (count($found) != count($needle)) {
-            throw new BadRequestHttpException("missing parameters some of these params : " . implode(', ', $needle));
+            throw new BadRequestHttpException("missing parameters these params : " . implode(', ', $missing));
         }
+
         return $found;
     }
 
