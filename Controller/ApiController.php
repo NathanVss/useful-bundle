@@ -12,9 +12,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Vss\UsefulBundle\Controller\Exception\MissingParamsException;
 
 /**
  * Class ApiController
@@ -129,10 +131,25 @@ class ApiController extends Controller
         }
 
         if (count($found) != count($needle)) {
-            throw new BadRequestHttpException("missing parameters these params : " . implode(', ', $missing));
+            throw new BadRequestHttpException("missing these params : " . implode(', ', $missing));
         }
 
         return $found;
     }
 
+    /**
+     * @param array $needle
+     * @param ParameterBag $haystack
+     * @return ParameterBag
+     */
+    public function needs(array $needle, ParameterBag $haystack) {
+        try {
+            $this->requiredParams($haystack, $needle);
+            return $haystack;
+        } catch (BadRequestHttpException $e) {
+            $exception = new MissingParamsException();
+            $exception->setResponse(self::error(400, "MissingParams", $e->getMessage()));
+            throw $exception;
+        }
+    }
 }
